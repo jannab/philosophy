@@ -14,26 +14,24 @@ def replaceUrlWithRandomWikiIfNotValid(url):
 
 def withValidUrlGetNumberOfHopsToPhilosophy(url):
     numberOfHops = 0
-    maxNumberOfHops = 100
-    content = getContentForUrl(url)
-    while(checkIfCurrentIsPhilosophy(content) is False):
+    maxNumberOfHops = 10
+    print('Checking law for:')
+    currentPage = getHtmlForUrl(url)
+    print('Hops:')
+    while(checkIfCurrentIsPhilosophy(currentPage) is False):
         if numberOfHops == maxNumberOfHops:
             return maxNumberOfHopsReached(maxNumberOfHops)
-        content = cleanUpContent(content)
+        currentPage = updateCurrentPageToFirstLink(currentPage)
         numberOfHops += 1
-    print(numberOfHops)
     return numberOfHops
 
-def getContentForUrl(url):
+def getHtmlForUrl(url):
     r = requests.get(url, timeout=10)
-    print('Checking law for: '+ r.url)
-    htmlParser = BeautifulSoup(r.text, 'html.parser')
-    if htmlParser is None:
-        print('Heres a problem in getContentForUrl')
-    return htmlParser
+    print(r.url)
+    return BeautifulSoup(r.text, 'html.parser')
 
-def checkIfCurrentIsPhilosophy(content):
-    if content.find(id='firstHeading').text == 'Philosophy':
+def checkIfCurrentIsPhilosophy(pageHtml):
+    if pageHtml.find(id='firstHeading').text == 'Philosophy':
         return True
     return False
 
@@ -41,6 +39,10 @@ def maxNumberOfHopsReached(maxNumberOfHops):
     print('The maximal number of hops ' + str(maxNumberOfHops) + ' is reached.')
     return None
 
-def cleanUpContent(content):
-    # TODO: replace
-    return content
+def updateCurrentPageToFirstLink(currentPage):
+    firstLinkUrl = getFirstValidLink(currentPage)
+    return getHtmlForUrl(firstLinkUrl)
+
+def getFirstValidLink(pageHtml):
+    # TODO: change
+    return 'http://en.wikipedia.org/wiki/Special:Random'
