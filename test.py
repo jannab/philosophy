@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import philosophy
 
 def testGettingToPhilosophyLaw(numberOfTests):
@@ -11,9 +12,13 @@ def testGettingToPhilosophyLaw(numberOfTests):
     printResult(numberOfTests, numberOfSuccessfulTests, sumOfHops)
 
 def printResult(numberOfTests, numberOfSuccessfulTests, sumOfHops):
-    print('Average Hops: ' + str(sumOfHops/numberOfSuccessfulTests))
-    print('The "Getting to Philosophy" law was successful in '
-            + str(100*numberOfSuccessfulTests/numberOfTests)
-            + ' % of the cases.')
+    if numberOfSuccessfulTests == 0:
+        print('The "Getting to Philosophy" law was not successful in all '
+                + str(numberOfTests) + ' cases.')
+    else:
+        print('Average Hops: ' + str(sumOfHops/numberOfSuccessfulTests))
+        print('The "Getting to Philosophy" law was successful in '
+                + str(100*numberOfSuccessfulTests/numberOfTests)
+                + ' % of the cases.')
 
-testGettingToPhilosophyLaw(100)
+testGettingToPhilosophyLaw(2)
