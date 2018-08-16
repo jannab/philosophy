@@ -5,6 +5,7 @@ def testGettingToPhilosophyLaw(numberOfTests):
     sumOfHops = 0
     numberOfSuccessfulTests = 0
     for testNumber in range(numberOfTests):
+        philosophy.VISITED_PAGES = []
         numberOfHops = philosophy.getNumberOfHopsToPhilosophy()
         if numberOfHops is not None:
             sumOfHops += numberOfHops
