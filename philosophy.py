@@ -78,6 +78,8 @@ def cleanSoupFromUnwantedLinks(currentSoup):
 
 def getFirstLink(cleanedSoup):
     firstWikiLink = cleanedSoup.find('a', href = re.compile('^/wiki/'))
+    if firstWikiLink is None:
+        return None
     fullUrl = getFullUrlFromWikiLink(firstWikiLink)
     return fullUrl
 
