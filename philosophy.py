@@ -2,7 +2,6 @@
 import sys
 import requests
 from bs4 import BeautifulSoup
-from random import randint
 from time import sleep
 
 MAX_NUMBER_OF_HOPS = 4
