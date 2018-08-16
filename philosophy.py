@@ -85,3 +85,9 @@ def getFirstLink(cleanedSoup):
 
 def getFullUrlFromWikiLink(wikiLink):
     return 'https://en.wikipedia.org' + wikiLink.get('href')
+
+if __name__ == '__main__':
+    passedUrl = None
+    if len(sys.argv) > 1:
+      passedUrl = sys.argv[1]
+    getNumberOfHopsToPhilosophy(passedUrl)
