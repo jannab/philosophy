@@ -25,7 +25,7 @@ def withValidUrlGetNumberOfHopsToPhilosophy(url):
     numberOfHops = 0
     currentSoup = initializeFirstSoupAndStartStatement(url)
     while(checkIfCurrentIsPhilosophy(currentSoup) is False):
-        nextUrl = getFirstLink(currentSoup)
+        nextUrl = getFirstValidLink(currentSoup)
         if checkIfStuck(nextUrl, numberOfHops) is True:
             return None
         numberOfHops += 1
@@ -67,7 +67,15 @@ def checkIfStuck(nextUrl, numberOfHops):
         return False
     return True
 
-def getFirstLink(currentSoup):
+def getFirstValidLink(currentSoup):
+    cleanedSoup = cleanSoupFromUnwantedLinks(currentSoup)
+    return getFirstLink(cleanedSoup)
+
+def cleanSoupFromUnwantedLinks(currentSoup):
+    # TODO: change
+    return currentSoup
+
+def getFirstLink(cleanedSoup):
     # TODO: change
     #return None
     #return 'http://en.wikipedia.org/wiki/Philosophy'
