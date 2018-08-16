@@ -3,46 +3,74 @@ import sys
 import requests
 from bs4 import BeautifulSoup
 from random import randint
+from time import sleep
+
+MAX_NUMBER_OF_HOPS = 4
+VISITED_PAGES = []
 
 def getNumberOfHopsToPhilosophy(url=None):
     validUrl = replaceUrlWithRandomWikiIfNotValid(url)
     return withValidUrlGetNumberOfHopsToPhilosophy(validUrl)
 
 def replaceUrlWithRandomWikiIfNotValid(url):
-    if url is None:
-        return 'http://en.wikipedia.org/wiki/Special:Random'
+    if url is None or 'en.wikipedia.org' not in url:
+        return handleNoPassedWikiUrl(url)
+    return url
+
+def handleNoPassedWikiUrl(url):
+    print('There was no Wiki URL specified (' + str(url)
+            + '), working with random Wiki Entry.')
+    return 'http://en.wikipedia.org/wiki/Special:Random'
 
 def withValidUrlGetNumberOfHopsToPhilosophy(url):
     numberOfHops = 0
-    maxNumberOfHops = 10
-    print('Checking law for:')
-    currentPage = getHtmlForUrl(url)
-    print('Hops:')
-    while(checkIfCurrentIsPhilosophy(currentPage) is False):
-        if numberOfHops == maxNumberOfHops:
-            return maxNumberOfHopsReached(maxNumberOfHops)
-        currentPage = updateCurrentPageToFirstLink(currentPage)
+    currentSoup = initializeFirstSoupAndStartStatement(url)
+    while(checkIfCurrentIsPhilosophy(currentSoup) is False):
+        nextUrl = getFirstLink(currentSoup)
+        if checkIfStuck(nextUrl, numberOfHops) is True:
+            return None
         numberOfHops += 1
+        currentSoup = getSoupForUrl(nextUrl)
+    print('Philosophy found. Number of hops: ' + str(numberOfHops))
     return numberOfHops
 
-def getHtmlForUrl(url):
+def initializeFirstSoupAndStartStatement(url):
+    print('Checking law for:')
+    currentSoup = getSoupForUrl(url)
+    print('Hops:')
+    return currentSoup
+
+def getSoupForUrl(url):
     r = requests.get(url, timeout=10)
     print(r.url)
+    VISITED_PAGES.append(r.url)
+    sleep(0.5)
     return BeautifulSoup(r.text, 'html.parser')
 
-def checkIfCurrentIsPhilosophy(pageHtml):
-    if pageHtml.find(id='firstHeading').text == 'Philosophy':
+def checkIfCurrentIsPhilosophy(currentSoup):
+    if getPageTitle(currentSoup) == 'Philosophy':
         return True
     return False
 
-def maxNumberOfHopsReached(maxNumberOfHops):
-    print('The maximal number of hops ' + str(maxNumberOfHops) + ' is reached.')
-    return None
+def getPageTitle(currentSoup):
+    return currentSoup.find(id='firstHeading').text
 
-def updateCurrentPageToFirstLink(currentPage):
-    firstLinkUrl = getFirstValidLink(currentPage)
-    return getHtmlForUrl(firstLinkUrl)
+def checkIfStuck(nextUrl, numberOfHops):
+    if numberOfHops == MAX_NUMBER_OF_HOPS:
+        print('The maximal number of hops ' + str(MAX_NUMBER_OF_HOPS)
+                    + ' is reached.')
+    elif nextUrl is None:
+        print('Stuck, no Wiki Link on the page.')
+    elif nextUrl in VISITED_PAGES:
+        print('Stuck in a loop, already visited: ' + str(nextUrl))
+    else:
+        # not stuck
+        return False
+    return True
 
-def getFirstValidLink(pageHtml):
+def getFirstLink(currentSoup):
     # TODO: change
+    #return None
+    #return 'http://en.wikipedia.org/wiki/Philosophy'
     return 'http://en.wikipedia.org/wiki/Special:Random'
+    #return VISITED_PAGES[0]
