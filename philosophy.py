@@ -5,7 +5,7 @@ import re
 from bs4 import BeautifulSoup
 from time import sleep
 
-MAX_NUMBER_OF_HOPS = 10
+MAX_NUMBER_OF_HOPS = 100
 VISITED_PAGES = []
 
 def getNumberOfHopsToPhilosophy(url=None):
@@ -70,13 +70,39 @@ def checkIfStuck(nextUrl, numberOfHops):
 
 def getFirstValidLink(currentSoup):
     cleanedSoup = cleanSoupFromUnwantedLinks(currentSoup)
-    return getFirstLink(cleanedSoup)
+    return getFirstWorkingWikiLink(cleanedSoup)
 
 def cleanSoupFromUnwantedLinks(currentSoup):
-    # TODO: change
-    return currentSoup
+    cleanedSoup = reduceToArticleContent(currentSoup)
+    cleanedSoup = getRidOfBoxes(cleanedSoup)
+    cleanedSoup = removeUnwantedFormattation(cleanedSoup)
+    cleanedSoup = removeParanthesizedText(cleanedSoup)
+    return cleanedSoup
 
-def getFirstLink(cleanedSoup):
+def reduceToArticleContent(currentSoup):
+    return currentSoup.find(id='mw-content-text')
+
+def getRidOfBoxes(currentSoup):
+    boxTypes = ['navbox', 'vertical-navbox', 'infobox', 'toc', 'hatnote',
+                    'thumbinner', 'floatright']
+    cleanedSoup = currentSoup
+    for box in cleanedSoup.find_all(class_=boxTypes):
+        box.replace_with("")
+    return cleanedSoup
+
+def removeUnwantedFormattation(currentSoup):
+    unwantedFormats = ['span', 'small', 'sup,', 'i', 'table']
+    cleanedSoup = currentSoup
+    for unwantedFormat in cleanedSoup.find_all(unwantedFormats):
+        unwantedFormat.replace_with("")
+    return cleanedSoup
+
+def removeParanthesizedText(currentSoup):
+    soupText = str(currentSoup)
+    cleanedText = re.sub(r' \(.*?\)', '', soupText)
+    return BeautifulSoup(cleanedText, 'html.parser')
+
+def getFirstWorkingWikiLink(cleanedSoup):
     firstWikiLink = cleanedSoup.find('a', href = re.compile('^/wiki/'))
     if firstWikiLink is None:
         return None
