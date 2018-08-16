@@ -1,10 +1,11 @@
 #!/usr/bin/python
 import sys
 import requests
+import re
 from bs4 import BeautifulSoup
 from time import sleep
 
-MAX_NUMBER_OF_HOPS = 4
+MAX_NUMBER_OF_HOPS = 10
 VISITED_PAGES = []
 
 def getNumberOfHopsToPhilosophy(url=None):
@@ -42,7 +43,7 @@ def initializeFirstSoupAndStartStatement(url):
 def getSoupForUrl(url):
     r = requests.get(url, timeout=10)
     print(r.url)
-    VISITED_PAGES.append(r.url)
+    VISITED_PAGES.append(str(r.url))
     sleep(0.5)
     return BeautifulSoup(r.text, 'html.parser')
 
@@ -76,8 +77,9 @@ def cleanSoupFromUnwantedLinks(currentSoup):
     return currentSoup
 
 def getFirstLink(cleanedSoup):
-    # TODO: change
-    #return None
-    #return 'http://en.wikipedia.org/wiki/Philosophy'
-    return 'http://en.wikipedia.org/wiki/Special:Random'
-    #return VISITED_PAGES[0]
+    firstWikiLink = cleanedSoup.find('a', href = re.compile('^/wiki/'))
+    fullUrl = getFullUrlFromWikiLink(firstWikiLink)
+    return fullUrl
+
+def getFullUrlFromWikiLink(wikiLink):
+    return 'https://en.wikipedia.org' + wikiLink.get('href')
