@@ -22,4 +22,4 @@ def printResult(numberOfTests, numberOfSuccessfulTests, sumOfHops):
                 + str(100*numberOfSuccessfulTests/numberOfTests)
                 + ' % of the cases.')
 
-testGettingToPhilosophyLaw(2)
+testGettingToPhilosophyLaw(10)
